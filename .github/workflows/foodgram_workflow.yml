@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  tests:
+  tests_with_pep8:
     runs-on: ubuntu-latest
     
     steps:

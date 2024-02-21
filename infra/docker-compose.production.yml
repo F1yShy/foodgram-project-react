@@ -1,0 +1,41 @@
+version: '3.3'
+
+volumes:
+  pg_data:
+  static:
+  media:
+  
+services:
+  db:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/pg_data
+  
+  backend:
+    image: flyshy/foodgram_backend
+    env_file: .env
+    volumes:
+      - static:/static
+      - media:/app/media
+    depends_on:
+      - db
+
+  frontend:
+    image: flyshy/foodgram_frontend
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - db
+
+  nginx:
+    image: flyshy/foodgram_nginx
+    ports:
+      - 8080:80
+    volumes:
+      - media:/media
+      - static:/static/
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/      
+    depends_on:
+      - backend

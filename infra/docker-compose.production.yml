@@ -9,6 +9,8 @@ services:
   db:
     image: postgres:13.10
     env_file: .env
+    ports:
+      - 5432:5432
     volumes:
       - pg_data:/var/lib/postgresql/pg_data
   
@@ -16,7 +18,7 @@ services:
     image: flyshy/foodgram_backend
     env_file: .env
     volumes:
-      - static:/app/static/
+      - static:/app/backend_static/
       - media:/app/media/
     depends_on:
       - db

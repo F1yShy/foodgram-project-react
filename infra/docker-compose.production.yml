@@ -16,8 +16,8 @@ services:
     image: flyshy/foodgram_backend
     env_file: .env
     volumes:
-      - static:/static/
-      - media:/media/
+      - static:/app/static/
+      - media:/app/media/
     depends_on:
       - db
 

@@ -1,2 +1,4 @@
 # praktikum_new_diplom
-12
+логин и пароль администратора:
+flyshy
+12345

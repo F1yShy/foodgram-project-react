@@ -4,7 +4,6 @@ volumes:
   pg_data:
   static:
   media:
-  static_frontend:
   
 services:
   db:

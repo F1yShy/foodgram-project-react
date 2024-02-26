@@ -1,11 +1,10 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.db.models import F, Q
 
-from core.constraints import (MAX_EMAIL_LENGTH, MAX_FIRST_NAME_LENGTH,
-                              MAX_LAST_NAME_LENGTH, MAX_PASSWORD_LENGTH,
-                              MAX_USERNAME_LENGTH)
+from core.constraints import (MAX_FIRST_NAME_LENGTH, MAX_LAST_NAME_LENGTH,
+                              MAX_PASSWORD_LENGTH, MAX_USERNAME_LENGTH)
 
 
 class CustomUser(AbstractUser):
@@ -13,7 +12,7 @@ class CustomUser(AbstractUser):
         verbose_name="Логин",
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[RegexValidator(regex=r"^[\w.@+-]+\Z")],
+        validators=[UnicodeUsernameValidator()],
     )
     password = models.CharField(
         verbose_name="Пароль",
@@ -21,7 +20,6 @@ class CustomUser(AbstractUser):
     )
     email = models.EmailField(
         verbose_name="Почта",
-        max_length=MAX_EMAIL_LENGTH,
         unique=True,
     )
     first_name = models.CharField(
@@ -32,14 +30,16 @@ class CustomUser(AbstractUser):
         verbose_name="Фамилия пользователя",
         max_length=MAX_LAST_NAME_LENGTH,
     )
-
-    def __str__(self) -> str:
-        return self.username
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
         ordering = ("username",)
+
+    def __str__(self) -> str:
+        return self.username
 
 
 class Subscription(models.Model):
@@ -57,6 +57,10 @@ class Subscription(models.Model):
     )
 
     class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        ordering = ("user",)
+
         constraints = [
             models.UniqueConstraint(
                 fields=["user", "author"], name="unique_subscriber"
@@ -67,4 +71,4 @@ class Subscription(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.author.username} - {self.user.username}"
+        return f"{self.author} - {self.user}"

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseAdmin
 from django.contrib.auth.models import Group
 
-from users.models import CustomUser
+from users.models import CustomUser, Subscription
 
 
 @admin.register(CustomUser)
@@ -17,6 +17,15 @@ class UserAdmin(BaseAdmin):
         "username",
         "email",
     )
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "author",
+    )
+    search_fields = ("user",)
 
 
 admin.site.unregister(Group)

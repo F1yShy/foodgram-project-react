@@ -12,11 +12,11 @@ class BaseNameModel(models.Model):
         max_length=MAX_NAME_LENGTH,
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return self.name
 
 
 class BaseUserModel(models.Model):

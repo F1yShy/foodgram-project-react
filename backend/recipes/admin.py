@@ -3,13 +3,19 @@ from django.db.models import Count
 from import_export.admin import ImportExportModelAdmin
 
 from core.resources import IngredientResource
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 
 
-class IngredientRecipeInline(admin.StackedInline):
-    model = IngredientRecipe
+class TagInline(admin.StackedInline):
+    model = Recipe.tags.through
     extra = 0
+    min_num = 1
+
+
+class IngredientInline(admin.StackedInline):
+    model = Recipe.ingredients.through
+    extra = 0
+    min_num = 1
 
 
 @admin.register(Tag)
@@ -50,10 +56,12 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = (
         "name",
         "author",
-        "tags",
     )
-    filter_horizontal = ("tags",)
-    inlines = (IngredientRecipeInline,)
+    exclude = ("tags",)
+    inlines = (
+        IngredientInline,
+        TagInline,
+    )
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

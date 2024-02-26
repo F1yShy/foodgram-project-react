@@ -2,6 +2,10 @@
 flyshy
 12345 
 sd@cds.com
+Домен
+```
+https://foodgramme.bounceme.net/
+```
 
 ### Проект Foodgram
 
@@ -43,14 +47,18 @@ git clone https://github.com/F1yShy/foodgram-project-react.git
 cd infra/
 ```
 
-Создаем файл .env в корневой директории и заполняем поля нужными значениями:
+Создаем файл .env в директории /infra и заполняем поля нужными значениями:
 
 ```
-POSTGRES_USER=django_user
-POSTGRES_PASSWORD=mysecretpassword
-POSTGRES_DB=django
+POSTGRES_DB=foodgrasm
+POSTGRES_USER=flyshy
+POSTGRES_PASSWORD=12345
+DB_NAME=foodgrasm
+
 DB_HOST=db
 DB_PORT=5432
+ALLOWED_HOSTS=foodgramme.bounceme.net,158.160.0.95,127.0.0.1,localhost
+DEBUG=False
 ```
 
 Запускаем Docker Compose с конфигурацией из файла docker-compose.production.yml:
@@ -62,7 +70,7 @@ docker compose -f docker-compose.production.yml up -d
 Собираем статику:
 
 ```
-docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
+docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --no-input  
 ```
 
 Выполняем миграции:
@@ -71,10 +79,129 @@ docker compose -f docker-compose.production.yml exec backend python manage.py co
 docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 ```
 
-Готово! Сайт доступен по ссылке:
+Создаем админа:
 
 ```
-http://localhost:8080/
+docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
+```
+
+Переходим по ссылке, авторизуемся:
+
+```
+http://localhost:8080/admin/
+```
+
+Добавляем необходимые теги:
+```
+http://localhost:8080/admin/recipes/tag/add/
+```
+
+Импортируем ингридиенты в формате json:
+```
+http://localhost:8080/admin/recipes/ingredient/import/
+```
+
+### Примеры запросов данных к API:
+
+Регистрация пользователя:
+
+_Запрос_
+POST
+```
+http://localhost:8080/api/users/
+```
+_Ответ_
+```
+{
+  "email": "iamproyes@admin.ru",
+  "username": "avenge.me",
+  "first_name": "Никита",
+  "last_name": "Петров",
+  "password": "supersecretpass12345"
+}
+```
+
+Получение списка тегов:
+
+_Запрос_
+GET
+```
+http://localhost:8080/api/tags/
+```
+
+_Ответ_
+```
+[
+  {
+   "id": 0,
+    "name": "Завтрак",
+    "color": "#E26C2D",
+    "slug": "breakfast"
+  }
+]
+```
+
+Создание рецепта:
+_Доступно только авторизованному пользователю_
+
+_Запрос_
+POST
+```
+http://localhost:8080/api/recipes/
+```
+
+_Ответ_
+```
+{
+  "ingredients": [
+    {
+      "id": 1123,
+      "amount": 10
+    }
+  ],
+  "tags": [
+    1,
+    2
+  ],
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "name": "string",
+  "text": "string",
+  "cooking_time": 1
+}
+```
+
+Добавить рецепт в избранное
+_Доступно только авторизованному пользователю_
+
+_Запрос_
+POST
+```
+http://localhost:8080/api/recipes/{id}/favorite/
+```
+
+_Ответ_
+```
+{
+  "id": 0,
+  "name": "string",
+  "image": "http://foodgram.example.org/media/recipes/images/image.jpeg",
+  "cooking_time": 1
+}
+```
+
+Скачать список покупок
+_Скачать файл со списком покупок в формате TXT. Доступно только авторизованным пользователям._
+
+_Запрос_
+GET
+```
+http://localhost:8080/api/recipes/download_shopping_cart/
+```
+
+Подробная документация с описанием всех запросов и ответов доступная по ссылке:
+
+```
+http://localhost:8080/api/docs/
 ```
 
 ### Контактная информация

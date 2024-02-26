@@ -8,6 +8,9 @@ from core.constraints import (MAX_FIRST_NAME_LENGTH, MAX_LAST_NAME_LENGTH,
 
 
 class CustomUser(AbstractUser):
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "username"]
+
     username = models.CharField(
         verbose_name="Логин",
         max_length=MAX_USERNAME_LENGTH,
@@ -30,8 +33,6 @@ class CustomUser(AbstractUser):
         verbose_name="Фамилия пользователя",
         max_length=MAX_LAST_NAME_LENGTH,
     )
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "username"]
 
     class Meta:
         verbose_name = "Пользователь"

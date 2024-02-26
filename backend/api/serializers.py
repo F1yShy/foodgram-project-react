@@ -1,4 +1,3 @@
-from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
@@ -9,7 +8,7 @@ from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
 from users.models import CustomUser, Subscription
 
 
-class CustomUserSerializer(UserSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра аккаунтов пользователя."""
 
     is_subscribed = serializers.SerializerMethodField()
@@ -27,20 +26,19 @@ class CustomUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         """
-        Возвращает логическое выражение bool(), из 3-х элементов с помощью
-        оператов and:
-        - Реквест self.context.get('request')
-        - Авторизация пользователя request.user.is_authenticated
-        - Существование Subscription.objects.filter(user=user, author=obj)
         Возвращает True, если подписка существует,
         пользователь авторизован и существует реквест.
         В остальных случаях возвращает False.
         """
+        request = self.context.get("request")
 
-        user = self.context.get("request").user
-        if user.is_authenticated:
-            return Subscription.objects.filter(user=user, author=obj).exists()
-        return False
+        return bool(
+            request
+            and request.user.is_authenticated
+            and Subscription.objects.filter(
+                user=request.user, author=obj
+            ).exists()
+        )
 
 
 class SubscribeSerializer(CustomUserSerializer):
@@ -65,9 +63,7 @@ class SubscribeSerializer(CustomUserSerializer):
             try:
                 limit = int(limit)
             except ValueError:
-                raise serializers.ValidationError(
-                    "Значение не является целым числом"
-                )
+                pass
             queryset = queryset[:limit]
         return AbridgedRecipeSerializer(queryset, many=True).data
 
@@ -191,43 +187,35 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         """
-        Возвращает логическое выражение bool(), из 3-х элементов с помощью
-        оператов and:
-        - Реквест self.context.get('request')
-        - Авторизация пользователя request.user.is_authenticated
-        - Существование Recipe.objects.filter(favorite__user=user, id=obj.id)
         Возвращает True, если рецепт находится в избранном,
         пользователь авторизован и существует реквест.
         В остальных случаях возвращает False.
         """
+        request = self.context.get("request")
 
-        user = self.context["request"].user
-        if user.is_authenticated:
-            return Recipe.objects.filter(
-                favorite__user=user, id=obj.id
-            ).exists()
-        return False
+        return bool(
+            request
+            and request.user.is_authenticated
+            and Recipe.objects.filter(
+                favorite__user=request.user, id=obj.id
+            ).exists(),
+        )
 
     def get_is_in_shopping_cart(self, obj):
         """
-        Возвращает логическое выражение bool(), из 3-х элементов с помощью
-        оператов and:
-        - Реквест self.context.get('request')
-        - Авторизация пользователя request.user.is_authenticated
-        - СуществованиеRecipe.objects.filter(
-            shoppingcart__user=user, id=obj.id
-            )
         Возвращает True, если рецепт находится в корзине,
         пользователь авторизован и существует реквест.
         В остальных случаях возвращает False.
         """
+        request = self.context.get("request")
 
-        user = self.context["request"].user
-        if user.is_authenticated:
-            return Recipe.objects.filter(
-                shoppingcart__user=user, id=obj.id
-            ).exists()
-        return False
+        return bool(
+            request
+            and request.user.is_authenticated
+            and Recipe.objects.filter(
+                shoppingcart__user=request.user, id=obj.id
+            ).exists(),
+        )
 
 
 class IngredientCreateInRecipeSerializer(serializers.ModelSerializer):

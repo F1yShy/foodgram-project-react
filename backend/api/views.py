@@ -46,10 +46,9 @@ class CustomUserViewSet(UserViewSet):
             data={"user": user, "author": author},
             context={"request": request},
         )
-        if serializer.is_valid():
-            serializer.save(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=user, author=author)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, *args, **kwargs):
@@ -58,7 +57,8 @@ class CustomUserViewSet(UserViewSet):
         count_delete_subscribe, _ = Subscription.objects.filter(
             user=request.user, author=author
         ).delete()
-        if count_delete_subscribe < 1:
+
+        if not count_delete_subscribe:
             return Response(
                 {"errors": "Вы не подписаны на данного пользователя"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -72,7 +72,6 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         queryset = Subscription.objects.filter(user=request.user)
-        print(queryset)
         pages = self.paginate_queryset(queryset)
         serializer = SubscribeCreateSerializer(
             pages,
@@ -115,10 +114,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = serializer_type(
             data={"recipe": pk}, context={"request": request}
         )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_item(self, model, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -126,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=request.user, recipe=recipe
         ).delete()
 
-        if count_delete_item < 1:
+        if not count_delete_item:
             return Response(
                 {"errors": "Невозможно удалить, сначала добавьте"},
                 status=status.HTTP_400_BAD_REQUEST,

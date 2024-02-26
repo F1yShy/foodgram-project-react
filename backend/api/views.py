@@ -11,11 +11,15 @@ from rest_framework.response import Response
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import LimitPageNumberPagination
 from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (FavoriteCreateSerializer, IngredientSerializer,
-                             RecipeCreateAndUpdateSerializer,
-                             RecipeReadSerializer,
-                             ShoppingCartCreateSerializer,
-                             SubscribeCreateSerializer, TagSerializer)
+from api.serializers import (
+    FavoriteCreateSerializer,
+    IngredientSerializer,
+    RecipeCreateAndUpdateSerializer,
+    RecipeReadSerializer,
+    ShoppingCartCreateSerializer,
+    SubscribeCreateSerializer,
+    TagSerializer,
+)
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Subscription
 

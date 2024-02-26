@@ -2,6 +2,7 @@ version: '3.3'
 
 volumes:
   pg_data:
+    name: foodgram_pg_data
   static:
   media:
   static_frontend:
